@@ -1,0 +1,21 @@
+{% extends 'expenses/base.html' %}
+
+{% block body%}
+
+    <div class="container text-center mt-5">
+    <h1>Welcome to Expense Tracker!</h1>
+    <p class="lead mt-3">Track your expenses and manage your finances with ease.</p>
+    {% if user.is_authenticated %}
+        <div class="mt-5">
+                <a class="btn btn-secondary me-2 mt-5" href="/expenses/{{ month }}">View Expenses</a>
+
+        </div>
+    {% else %}
+    <div class="mt-5">
+        <h3>To Get Started Log In</h3>
+        <a class="btn btn-secondary me-2 mt-5" href="{% url 'login' %}">Login</a>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

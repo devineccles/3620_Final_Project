@@ -1,0 +1,18 @@
+{% extends 'expenses/base.html' %}
+{% block body %}
+        <div class="container flex-d text-center mt-5">
+            <form method="post">
+                {% csrf_token %}
+                {{ form }}
+                <div class="row text-center">
+                    <div class="col-12 m-2">
+                        <button class="nav-item btn btn-secondary me-2" type="submit">Login</button>
+                    </div>
+                    <div class="col-12">
+                        <a  class="nav-item btn btn-secondary me-2" href="{% url 'register' %}">Don't Have an Account?</a>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+{% endblock %}

@@ -1,0 +1,185 @@
+{% extends 'expenses/base.html' %}
+{% block title %}
+    {{ month }} {{ year }} Expenses
+{% endblock %}
+{% block body %}
+
+    <div class="bg-dark text-center pb-4 pt-4 m-3 row">
+        <div class="container offset-1 col-10">
+            <div class="carousel">
+                {% for month in months %}
+                    {% with month_index=forloop.counter %}
+                        <div class="month-option text-center">
+                            {% if month_index == month_id %}
+                                <a href="/expenses/{{ month_index }}" class="btn btn-light active">{{ month }}</a>
+                            {% else %}
+                                <a href="/expenses/{{ month_index }}" class="btn btn-secondary">{{ month }}</a>
+                            {% endif %}
+                        </div>
+                    {% endwith %}
+                {% endfor %}
+            </div>
+        </div>
+        <div class="col-1">
+            {% if month_id == 0 %}
+                <a href="/expenses/0" class="btn btn-light ">Year</a>
+            {% else %}
+                <a href="/expenses/0" class="btn btn-secondary">Year</a>
+            {% endif %}
+
+        </div>
+    </div>
+
+    <div class="m-3">
+        <div class="row">
+            <div class="col-1"></div>
+            <div class="col-10">
+                <h2 class="mt-4 text-center">{{ month }} {{ year }}</h2>
+            </div>
+            <div class="col-1">
+                <a href="/expenses/{{ month_id }}/pdf" class="btn btn-secondary">Export As PDF</a>
+            </div>
+        </div>
+        <table class="table mt-4">
+            <tr>
+                <th>Total Gross Income</th>
+                <th>Total Net Income</th>
+                <th>Total Expenses</th>
+                <th>+ / -</th>
+            </tr>
+            <tr>
+                <td>${{ total_gross_income }}</td>
+                <td>${{ total_net_income }}</td>
+                <td>${{ total_expenses }}</td>
+                {% if balance < 0 %}
+                    <td style="color: red; font-weight: bolder">${{ balance }}</td>
+                {% elif balance >= 0 and balance < 250 %}
+                    <td style="color: #FFD700; font-weight: bolder">${{ balance }}</td>
+                {% else %}
+                    <td style="color: green; font-weight: bolder">${{ balance }}</td>
+                {% endif %}
+            </tr>
+
+        </table>
+
+        <div class="mb-5">
+            <table class="table">
+                <tr>
+                    {% for category, total in category_totals.items %}
+                        <th class="text-center ">{{ category }}</th>
+
+                    {% endfor %}
+                </tr>
+                <tr>
+                    {% for category, total in category_totals.items %}
+
+                        <td class="text-center">${{ total }}</td>
+                    {% endfor %}
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="text-center pb-2 pt-4 m-3 row">
+        <form method="GET" action="" style=" ">
+            <div class=" row mb-2">
+                <div class="col-3 w-25"></div>
+                <div class="col-3 input-group w-25">
+                    <select name="category_filter" class="form-control"
+                            style="appearance: none; background-color: transparent; margin-right: -40px; border-radius: 5px; ">
+                        <option value="">All Categories</option>
+                        {% for category, total in category_totals.items %}
+                            <option value="{{ category }}"
+                                    {% if request.GET.category_filter == category %}selected{% endif %}>{{ category }}</option>
+                        {% endfor %}
+                    </select>
+                    <span class="input-group-text" style="  ">
+                            <i class="bi bi-funnel"></i>
+                        </span>
+                </div>
+                <div class="col-3 w-25">
+                    <select name="sort_option" class="form-control" style="appearance: menulist-button;">
+                        <option value="">Sort by...</option>
+                        <option value="date" {% if request.GET.sort_option == 'date' %}selected{% endif %}>Date
+                        </option>
+                        <option value="amount" {% if request.GET.sort_option == 'amount' %}selected{% endif %}>
+                            Amount
+                        </option>
+                        <option value="description"
+                                {% if request.GET.sort_option == 'description' %}selected{% endif %}>Description
+                        </option>
+                    </select>
+                </div>
+                <div class="input-group col-3 w-25">
+                    <input type="text" class="form-control" name="search" placeholder="Search expenses..."
+                           value="{{ request.GET.search|default:'' }}">
+                    <button class="btn btn-secondary" type="submit">Search</button>
+                </div>
+            </div>
+        </form>
+
+        <div id="expensesContent">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Category</th>
+                    <th>Amount</th>
+                    <th>Description</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for expense in expenses_page %}
+                    <tr>
+                        <td>{{ expense.date }}</td>
+                        <td>{{ expense.get_category_display }}</td>
+                        <td>${{ expense.amount }}</td>
+                        <td>{{ expense.description }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="pagination-controls mt-2" style="">
+            {% if expenses_page.has_previous %}
+                <a href="?page={{ expenses_page.previous_page_number }}" class="btn btn-secondary">Previous</a>
+            {% endif %}
+            Page {{ expenses_page.number }} of {{ expenses_page.paginator.num_pages }}
+            {% if expenses_page.has_next %}
+                <a href="?page={{ expenses_page.next_page_number }}" class="btn btn-secondary">Next</a>
+            {% endif %}
+        </div>
+    </div>
+
+
+
+
+    <script>
+        $(document).ready(function () {
+            let initialSlide;
+            if ({{ month_id }} == 0) {
+                initialSlide = {{ current_month }}
+            } else {
+                initialSlide = {{ month_id }} - 1;
+            }
+
+            $('.carousel').slick({
+                slidesToShow: 7,
+                slidesToScroll: 1,
+                centerMode: true,
+                initialSlide: initialSlide,
+                prevArrow: '<button type="button" class="slick-prev btn btn-secondary">Previous</button>',
+                nextArrow: '<button type="button" class="slick-next btn btn-secondary">Next</button>',
+            });
+
+            $('select[name="category_filter"], select[name="sort_option"]').on('change', function () {
+                $('form').submit();
+            });
+            $('select[name="search"]').on('click', function () {
+                $('form').submit();
+            })
+
+        });
+    </script>
+
+{% endblock %}

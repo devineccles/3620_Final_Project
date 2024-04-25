@@ -1,0 +1,6 @@
+{% extends 'expenses/base.html' %}
+{% block body %}
+    <h1>Username: {{ user.username }}</h1>
+    <img src="{{ user.profile.image.url }}">
+
+{% endblock %}

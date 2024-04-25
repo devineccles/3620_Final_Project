@@ -1,0 +1,30 @@
+{% extends 'expenses/base.html' %}
+{% block body %}
+    <div class="container mt-5">
+        <div class="card">
+            <div class="card-body ">
+                <form method="POST" class=" d-flex flex-column align-items-center">
+                    {% csrf_token %}
+
+                        <div class="form-group w-50">
+                            {{ form.as_p }}
+                        </div>
+                        <div class="text-center">
+                            <button class="btn btn-secondary mt-3" type="submit">Submit</button>
+                        </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $('.datepicker').datepicker({
+                format: 'mm/dd/yyyy',
+                autoclose: true,
+                todayHighlight: true
+            });
+        });
+    </script>
+{% endblock %}
