@@ -100,7 +100,8 @@ applications:
       # More information: https://docs.upsun.com/create-apps/hooks/hooks-comparison.html#build-hook
       build: |
         set -eux
-        pip install -r /final/requirements.txt
+        
+        pip install -r final/requirements.txt
         # Collect static files so that they can be served by Upsun
         python final/manage.py collectstatic --noinput
         
